@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -32,10 +31,14 @@ public class FormularioAlunoActivity extends AppCompatActivity {
         configuraBotaoSalvar();
 
         Intent dados = getIntent();
-        aluno = (Aluno) dados.getSerializableExtra("aluno");
-        campoNome.setText(aluno.getNome());
-        campoTelefone.setText(aluno.getTelefone());
-        campoEmail.setText(aluno.getEmail());
+        if(dados.hasExtra("aluno")){
+            aluno = (Aluno) dados.getSerializableExtra("aluno");
+            campoNome.setText(aluno.getNome());
+            campoTelefone.setText(aluno.getTelefone());
+            campoEmail.setText(aluno.getEmail());
+        } else{
+            aluno = new Aluno();
+        }
 
     }
 
@@ -45,7 +48,11 @@ public class FormularioAlunoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 preecheAluno();
-                dao.edita(aluno);
+                if(aluno.temIdValido()){
+                    dao.edita(aluno);
+                }else{
+                    dao.salva(aluno);
+                }
                 finish();
             }
         });
@@ -57,12 +64,6 @@ public class FormularioAlunoActivity extends AppCompatActivity {
         campoEmail = findViewById(R.id.activity_formulario_aluno_email);
         campoNome.requestFocus();
     }
-
-    private void salva(Aluno alunoCriado) {
-        dao.salva(alunoCriado);
-        finish();
-    }
-
     private void preecheAluno() {
         String nome = campoNome.getText().toString();
         String telefone = campoTelefone.getText().toString();
